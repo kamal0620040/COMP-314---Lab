@@ -101,66 +101,60 @@ class BinarySearchTree:
             node = node.right
         return (node.key, node.data)
 
+
     def remove(self, key):
-        if not self.root:
-            return
-
-        current_node = self.root
-        parent_node = None
-
-        # Find the node to be removed and its parent.
-        while current_node and current_node.key != key:
-            parent_node = current_node
-
-            if key < current_node.key:
-                current_node = current_node.left
+        x = self.search(key)
+        if not x:
+            return -1
+        
+        to_delete = self.root
+        parent = None
+        while(to_delete.key != key):
+            parent = to_delete
+            if(key < to_delete.key):
+                to_delete = to_delete.left
             else:
-                current_node = current_node.right
+                to_delete = to_delete.right
 
-        # If the node was not found, return.
-        if not current_node:
-            return
-
-        # If Node has no children
-        if not current_node.left and not current_node.right:
-            if current_node == self.root:
-                self.root = None
-            elif current_node.key < parent_node.key:
-                parent_node.left = None
+        # If leaf node
+        if (to_delete.right == None and to_delete.left == None):
+            if parent.left == to_delete:
+                parent.left = None
             else:
-                parent_node.right = None
-
-        # If Node has one child
-        elif (current_node.left and not current_node.right) or (not current_node.left and current_node.right):
-            if current_node.left:
-                child_node = current_node.left
+                parent.right = None
+            self.count -= 1
+        
+        # If node with one child
+        if (to_delete.left == None and to_delete.right != None) or (to_delete.right == None and to_delete.left != None):
+            if (to_delete.left == None):
+                to_replace = to_delete.right
+                to_delete.right = None
             else:
-                child_node = current_node.right
+                to_replace = to_delete.left
+                to_delete.left = None
+            
+            to_delete.key = to_replace.key
+            to_delete.data = to_replace.data
+            self.count -= 1
+        
+        # If node with two childred
+        if (to_delete.right != None and to_delete.left != None):
+            to_replace = to_delete.left
+            to_replace_parent = None
 
-            if current_node == self.root:
-                self.root = child_node
-            elif current_node.key < parent_node.key:
-                parent_node.left = child_node
-            else:
-                parent_node.right = child_node
+            if to_replace.right == None:
+                to_delete.key = to_replace.key
+                to_delete.data = to_replace.data
+                to_delete.left = None
+                self.count -= 1
 
-        # If Node has two children
-        else:
-            successor_parent_node = current_node
-            successor_node = current_node.right
-            while successor_node.left:
-                successor_parent_node = successor_node
-                successor_node = successor_node.left
-
-            current_node.key = successor_node.key
-            current_node.data = successor_node.data
-
-            if successor_parent_node == current_node:
-                successor_parent_node.right = successor_node.right
-            else:
-                successor_parent_node.left = successor_node.right
-
-        self.count -= 1
-
+            else:    
+                while(to_replace.right != None):
+                    to_replace_parent = to_replace
+                    to_replace = to_replace.right
+                to_replace_parent.right = None
+                to_delete.key = to_replace.key
+                to_delete.data = to_replace.data            
+                self.count -= 1
  
  
